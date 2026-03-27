@@ -20,7 +20,23 @@ resource "random_password" "spring_actuator_password" {
   numeric = true
 }
 
+data "azurerm_key_vault_secret" "acs_smtp_password" {
+  count = var.acs_email_enabled && var.acs_smtp_password == null && var.acs_smtp_password_key_vault_id != null && var.acs_smtp_password_secret_name != null ? 1 : 0
+
+  key_vault_id = var.acs_smtp_password_key_vault_id
+  name         = var.acs_smtp_password_secret_name
+  version      = var.acs_smtp_password_secret_version
+}
+
 locals {
+  effective_mail_host = var.acs_email_enabled ? var.acs_smtp_host : var.mail_host
+  effective_mail_port = var.acs_email_enabled ? var.acs_smtp_port : var.mail_port
+
+  effective_mail_username = var.acs_email_enabled ? coalesce(var.acs_smtp_username, var.acs_sender_username) : var.mail_username
+  effective_mail_password = var.acs_email_enabled ? coalesce(var.acs_smtp_password, try(data.azurerm_key_vault_secret.acs_smtp_password[0].value, null)) : var.smtp_password
+
+  effective_application_mail_from = var.acs_email_enabled ? coalesce(var.acs_mail_from, var.application_mail_from) : var.application_mail_from
+
   sso_azure_hosts_effective = coalesce(
     var.sso_azure_hosts,
     trimsuffix(trimprefix(trimprefix(var.application_host_web, "https://"), "http://"), "/")
@@ -81,17 +97,17 @@ resource "azurerm_container_app" "entropy_data" {
 
       env {
         name  = "SPRING_MAIL_HOST"
-        value = var.mail_host
+        value = local.effective_mail_host
       }
 
       env {
         name  = "SPRING_MAIL_PORT"
-        value = var.mail_port
+        value = local.effective_mail_port
       }
 
       env {
         name  = "SPRING_MAIL_USERNAME"
-        value = var.mail_username
+        value = local.effective_mail_username
       }
 
       env {
@@ -106,7 +122,7 @@ resource "azurerm_container_app" "entropy_data" {
 
       env {
         name  = "APPLICATION_MAIL_FROM"
-        value = var.application_mail_from
+        value = local.effective_application_mail_from
       }
 
       dynamic "env" {
@@ -264,7 +280,7 @@ resource "azurerm_container_app" "entropy_data" {
 
   secret {
     name  = "smtp-password"
-    value = var.smtp_password
+    value = local.effective_mail_password
   }
 
   secret {
@@ -307,6 +323,21 @@ resource "azurerm_container_app" "entropy_data" {
   }
 
   lifecycle {
+    precondition {
+      condition     = var.acs_email_enabled || (var.mail_host != null && var.mail_port != null && var.mail_username != null && var.smtp_password != null)
+      error_message = "When acs_email_enabled is false, mail_host, mail_port, mail_username, and smtp_password must be set."
+    }
+
+    precondition {
+      condition     = var.acs_email_enabled == false || (var.acs_smtp_password != null || (var.acs_smtp_password_key_vault_id != null && var.acs_smtp_password_secret_name != null))
+      error_message = "When acs_email_enabled is true, provide either acs_smtp_password or both acs_smtp_password_key_vault_id and acs_smtp_password_secret_name."
+    }
+
+    precondition {
+      condition     = (var.acs_smtp_password_key_vault_id == null && var.acs_smtp_password_secret_name == null) || (var.acs_smtp_password_key_vault_id != null && var.acs_smtp_password_secret_name != null)
+      error_message = "Set both acs_smtp_password_key_vault_id and acs_smtp_password_secret_name together, or leave both unset."
+    }
+
     precondition {
       condition     = var.sso_azure_enabled == false || (var.sso_azure_issuer_uri != null && var.sso_azure_client_id != null && var.sso_azure_client_secret != null)
       error_message = "When sso_azure_enabled is true, sso_azure_issuer_uri, sso_azure_client_id, and sso_azure_client_secret must be set."
