@@ -123,72 +123,7 @@ Azure SSO (Microsoft Entra ID) is supported via optional variables that map to t
 
 When `sso_azure_enabled = true`, this module injects all required `SPRING_SECURITY_OAUTH2_*` Azure SSO env vars plus `APPLICATION_SSO_AZURE_HOSTS`.
 
-## Inputs
 
-### Required
-
-- `location`
-- `application_name`
-- `container_image`
-- `spring_profiles_active`
-- `application_host_web`
-- `application_mail_from`
-- `azure_openai_endpoint`
-- `azure_openai_deployment_name`
-- `azure_openai_key` (sensitive)
-
-### Optional
-
-- `container_cpu` (default: `2`)
-- `container_memory` (default: `"4Gi"`)
-- `container_registry_server` (default: `null`)
-- `container_registry_username` (default: `null`)
-- `container_registry_password` (default: `null`, sensitive)
-- `smtp_password` (default: `null`, sensitive)
-- `mail_host` (default: `null`)
-- `mail_port` (default: `null`)
-- `mail_username` (default: `null`)
-- `mail_properties_mail_smtp_auth` (default: `"true"`)
-- `mail_properties_mail_smtp_starttls_enable` (default: `"true"`)
-- `acs_email_enabled` (default: `false`)
-- `acs_data_location` (default: `"Europe"`)
-- `acs_communication_service_name` (default: `null`)
-- `acs_email_service_name` (default: `null`)
-- `acs_managed_domain_name` (default: `"AzureManagedDomain"`)
-- `acs_sender_username` (default: `"noreply"`)
-- `acs_smtp_host` (default: `"smtp.azurecomm.net"`)
-- `acs_smtp_port` (default: `"587"`)
-- `acs_smtp_username` (default: `null`)
-- `acs_smtp_password` (default: `null`, sensitive)
-- `acs_smtp_password_key_vault_id` (default: `null`)
-- `acs_smtp_password_secret_name` (default: `null`)
-- `acs_smtp_password_secret_version` (default: `null`)
-- `acs_mail_from` (default: `null`)
-- `sso_azure_enabled` (default: `false`)
-- `sso_azure_issuer_uri` (default: `null`)
-- `sso_azure_client_id` (default: `null`, sensitive)
-- `sso_azure_client_secret` (default: `null`, sensitive)
-- `sso_azure_hosts` (default: `null`)
-- `additional_env_vars` (default: `{}`)
-- `postgres_sku` (default: `"GP_Standard_D2s_v3"`)
-- `postgres_storage_gb` (default: `128`)
-- `postgres_storage_tier` (default: `"P10"`)
-
-## Outputs
-
-- `container_app_id`
-- `container_app_environment_id`
-- `container_app_url`
-- `postgres_host`
-- `vnet_id`
-- `container_apps_subnet_id`
-- `postgres_subnet_id`
-- `acs_communication_service_id`
-- `acs_communication_service_hostname`
-- `acs_communication_service_primary_key` (sensitive)
-- `acs_email_communication_service_id`
-- `acs_email_domain`
-- `acs_email_sender_username`
 
 ## Notes
 
