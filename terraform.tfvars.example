@@ -9,25 +9,15 @@ postgres_sku                = "GP_Standard_D2s_v3"
 postgres_storage_gb         = 128
 postgres_storage_tier       = "P15"
 
-smtp_password               = "CHANGE_ME"
-
 application_host_web                            = "https://entropy-data.example.com"
 application_mail_from                           = "support@example.com"
 
-# Standard SMTP settings (required when acs_email_enabled = false)
 mail_host                                       = "smtp.example.com"
 mail_port                                       = "587"
 mail_username                                   = "smtp-user"
+smtp_password                                   = "CHANGE_ME"
 mail_properties_mail_smtp_auth                  = "true"
 mail_properties_mail_smtp_starttls_enable       = "true"
-
-# Alternative: Azure Communication Services SMTP mode
-# acs_email_enabled   = true
-# When ACS is enabled, mail_host/mail_port/mail_username above are optional.
-# acs_data_location   = "Europe" # default
-# acs_sender_username = "noreply" # default
-# ACS SMTP password has no generated default; provide it securely at apply time.
-# acs_mail_from       = "noreply@<your-verified-domain>"
 
 # Optional Azure SSO (Enterprise Edition)
 # sso_azure_enabled        = true
